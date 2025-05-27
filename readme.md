@@ -29,7 +29,7 @@ vergence of all implicit models across full-range timesteps.
 Experimental results on CIFAR-10, CIFAR-100, CIFAR10-
 DVS, and ImageNet demonstrate state-of-the-art perfor-
 mance among distillation-based SNNs training methods.
-<img src="doc/figure/fig.png" alt="introduction_figure" style="zoom:100%;" />
+<img src="doc/figure/fig.PNG" alt="introduction_figure" style="zoom:100%;" />
 
 
 ## Dependency
