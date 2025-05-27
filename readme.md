@@ -1,8 +1,4 @@
-# Efficient Distillation of Deep Spiking Neural Networks for Full-Range Timestep
-Deployment
-
-Efficient Distillation of Deep Spiking Neural Networks for Full-Range Timestep
-Deployment
+# Efficient Logit-based Knowledge Distillation of Deep Spiking Neural Networks for Full-Range Timestep Deployment
 
 ---
 
