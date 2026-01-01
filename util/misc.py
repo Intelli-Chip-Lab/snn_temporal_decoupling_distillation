@@ -74,7 +74,7 @@ def accuracy(output, target, topk=(1,)):
 
 
 class AverageMeter(object):
-    def __init__(self):
+    def __init__(self, name=None, fmt=None):
         self.reset()
     def reset(self):
         self.val = 0

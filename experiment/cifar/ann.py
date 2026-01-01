@@ -138,7 +138,7 @@ def main():
     evaluator = torch.nn.CrossEntropyLoss()
     from model import  ResNet_ANN
 
-    ann_model = ResNet_ANN.__dict__[args.arch1](num_classes=num_class,
+    ann_model = ResNet_ANN.__dict__[args.arch](num_classes=num_class,
                                                    in_channels=2 if 'dvs' in args.dataset.lower() else 3)
 
     ann_model.to(device)
@@ -193,6 +193,7 @@ def main():
                 'optimizer': optimizer.state_dict(),
             }
             torch.save(state, os.path.join(args.log_path, 'model_weights.pth'))
+            torch.save(ann_model, os.path.join(args.log_path, 'model.pt'))
         log.info(
             'Epoch %03d: train loss %.5f, test loss %.5f, train acc %.5f, test acc %.5f, Saved custom_model..  with acc %.5f in the epoch %03d' % (
                 epoch, train_loss, val_loss, train_acc1, val_acc1, best_acc, best_epoch))
@@ -222,7 +223,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr', default=0.1, type=float)
     parser.add_argument('--wd', default=5e-4, type=float)
     parser.add_argument('--num_epoch', default=300, type=int)
-    parser.add_argument('--device', default="cuda:0", type=int)
+    parser.add_argument('--device', default="cuda:0", type=str)
     parser.add_argument('--num_workers', default=8, type=int)
     parser.add_argument('--optim', default='SGDM', type=str)
     parser.add_argument('--decay', default=None, type=float)
