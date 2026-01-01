@@ -6,6 +6,8 @@ import numpy as np
 import scipy.io as io
 from torchvision import datasets, transforms
 from .image_augment import CIFAR10Policy, Cutout
+from spikingjelly.datasets.cifar10_dvs import CIFAR10DVS
+from spikingjelly.datasets import split_to_train_test_set
 
 
 def random_spilt(root_dir, train_radio):
@@ -265,6 +267,42 @@ def load_dataset(name, root, cutout=False, auto_aug=False):
         train_data = CIFAR10_DVS_Aug(root=train_path, transform=False)
         val_data = CIFAR10_DVS_Aug(root=val_path)
         num_class = 10
+    elif name == 'CIFAR10DVS':
+        # Use simple transform for DVS frames: resize if necessary or just ToTensor
+        # But CIFAR10DVS with data_type='frame' returns numpy array usually, or tensor if transform is applied.
+        # process.py uses a custom trans definitions.
+        # Let's define a simple transform or reuse what's appropriate.
+        # If we look at ann.py, it expects standard tensor (B, C, H, W) or (B, T, C, H, W).
+        # We will use spikingjelly's split function.
+        
+        def trans_dvs(data):
+            # data is [T, 2, H, W] or [2, H, W, T]? SpikingJelly varies by version but usually [T, 2, H, W] for 'frame' data_type if configured.
+            # Wait, spikingjelly.datasets.cifar10_dvs.CIFAR10DVS(data_type='frame') returns [T, 2, 128, 128] usually.
+            # CIFAR10 is 32x32. We might want to resize.
+            # For now, let's trust the user wants raw frame or resized.
+            # ann.py uses resnet which adapts to input size usually via pooling, but initial conv?
+            # Model definition isn't fully visible but likely expects 32x32 or 48x48.
+            # process.py used 48x48.
+            # Let's resize to 48x48 as in process.py
+            
+            # Using similar logic to process.py's trans function
+            import torch
+            import random
+            from torchvision import transforms
+            resize = transforms.Resize(size=(48, 48))
+            data = torch.from_numpy(data).float() # [T, 2, 128, 128] probably?
+            # The shape from spikingjelly depends on implementation.
+            # If split_by='number', frames_number=10 -> [10, 2, 128, 128].
+            # We need to apply resize.
+            # Resize expects (..., C, H, W).
+            # So if data is (T, 2, H, W), resize works on last 2 dims.
+            data = resize(data)
+            return data
+
+        dataset = CIFAR10DVS(root=root, data_type='frame', frames_number=10, split_by='number', transform=trans_dvs)
+        train_data, val_data = split_to_train_test_set(0.9, dataset, 10)
+        num_class = 10
+
     else:
         raise NotImplementedError()
     return train_data, val_data, num_class
